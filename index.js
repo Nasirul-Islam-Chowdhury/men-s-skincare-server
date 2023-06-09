@@ -6,6 +6,10 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 require("dotenv").config()
+var jwt = require('jsonwebtoken');
+
+
+
 
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.bbqqyyb.mongodb.net/?retryWrites=true&w=majority`;
@@ -23,10 +27,12 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
         const servicesCollection = client.db("men's-skin-care").collection("services");
         const bookingsCollection = client.db("men's-skin-care").collection("booking");
         const usersCollection = client.db("men's-skin-care").collection("users");
+        const estheticiansColection = client.db("men's-skin-care").collection("estheticians");
          
         app.get("/", (req, res) => {
             res.send("Men's skincare server running");
           });
+
 
         app.get('/limitedServices', async(req, res)=>{
             const query = {};
@@ -96,6 +102,26 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
             updatedDoc,
             options
           );
+          res.send(result);
+        });
+
+
+        app.post("/addestheticians", async (req, res) => {
+          const doctor = req.body;
+          const result = await estheticiansColection.insertOne(doctor);
+          res.send(result);
+        });
+
+        app.get("/estheticians", async (req, res) => {
+          const query = {};
+          const result = await estheticiansColection.find(query).toArray();
+          res.send(result);
+        });
+
+        app.delete("/estheticians/:id", async (req, res) => {
+          const id = req.params.id
+          const query = {_id: new ObjectId(id)};
+          const result = await estheticiansColection.deleteOne(query);
           res.send(result);
         });
 
